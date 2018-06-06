@@ -1,4 +1,4 @@
-var traverseDomAndCollectElements = function(matchFunc, startEl) {
+var traverseDomAndCollectElements = function (matchFunc, startEl) {
   var resultSet = [];
 
   if (typeof startEl === "undefined") {
@@ -17,8 +17,12 @@ var traverseDomAndCollectElements = function(matchFunc, startEl) {
 // detect and return the type of selector
 // return one of these types: id, class, tag.class, tag
 
-var selectorTypeMatcher = function(selector) {
+var selectorTypeMatcher = function (selector) {
   // your code here
+  if (selector[0] === '#') return 'id';
+  if (selector[0] === '.') return 'class';
+  if (selector.includes('.')) return 'tag.class';
+  else return 'tag';
 };
 
 
@@ -27,26 +31,44 @@ var selectorTypeMatcher = function(selector) {
 // parameter and returns true/false depending on if that element
 // matches the selector.
 
-var matchFunctionMaker = function(selector) {
+var matchFunctionMaker = function (selector) {
   var selectorType = selectorTypeMatcher(selector);
   var matchFunction;
   if (selectorType === "id") {
     // define matchFunction for id
-
+    return function (elem) {
+      return selector.slice(1) === elem.id;
+    }
   } else if (selectorType === "class") {
     // define matchFunction for class
-
+    return function (elem) {
+      let classes = elem.className.split(' ');
+      for (let i = 0; i < classes.length; i++) {
+        if (classes[i] === selector.slice(1)) return true;
+      }
+      return false;
+    }
   } else if (selectorType === "tag.class") {
     // define matchFunction for tag.class
+    return function (elem) {
+      let tag = elem.tagName.toLowerCase(),
+        clas = elem.className.split(' ');
 
+      for (let i = 0; i < clas.length; i++) {
+        if (selector === tag + '.' + clas[i]) return true;
+      }
+      return false;
+    }
   } else if (selectorType === "tag") {
     // define matchFunction for tag
-
+    return function (elem) {
+      return elem.tagName.toLowerCase() === selector;
+    }
   }
   return matchFunction;
 };
 
-var $ = function(selector) {
+var $ = function (selector) {
   var elements;
   var selectorMatchFunc = matchFunctionMaker(selector);
   elements = traverseDomAndCollectElements(selectorMatchFunc);
