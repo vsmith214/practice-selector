@@ -5,6 +5,11 @@ var traverseDomAndCollectElements = function (matchFunc, startEl) {
     startEl = document.body;
   }
 
+  if (matchFunc(startEl)) {
+    resultSet.push(startEl);
+  }
+
+  [].slice.call(startEl.children).forEach(function (child) { resultSet = resultSet.concat(traverseDomAndCollectElements(matchFunc, child)) });
   // traverse the DOM tree and collect matching elements in resultSet
   // use matchFunc to identify matching elements
 
@@ -36,12 +41,12 @@ var matchFunctionMaker = function (selector) {
   var matchFunction;
   if (selectorType === "id") {
     // define matchFunction for id
-    return function (elem) {
+    matchFunction = function (elem) {
       return selector.slice(1) === elem.id;
     }
   } else if (selectorType === "class") {
     // define matchFunction for class
-    return function (elem) {
+    matchFunction = function (elem) {
       let classes = elem.className.split(' ');
       for (let i = 0; i < classes.length; i++) {
         if (classes[i] === selector.slice(1)) return true;
@@ -50,7 +55,7 @@ var matchFunctionMaker = function (selector) {
     }
   } else if (selectorType === "tag.class") {
     // define matchFunction for tag.class
-    return function (elem) {
+    matchFunction = function (elem) {
       let tag = elem.tagName.toLowerCase(),
         clas = elem.className.split(' ');
 
@@ -61,7 +66,7 @@ var matchFunctionMaker = function (selector) {
     }
   } else if (selectorType === "tag") {
     // define matchFunction for tag
-    return function (elem) {
+    matchFunction = function (elem) {
       return elem.tagName.toLowerCase() === selector;
     }
   }
